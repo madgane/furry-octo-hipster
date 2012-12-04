@@ -65,7 +65,7 @@ for iBand = 1:SimParams.nBands
                 Isum = Isum + cUser.weighingFactor * H_HU * W{combUIndex,1} * H_HU';
                 if cUser.baseNode == iBase
                     W_2 = W{combUIndex,1} * W{combUIndex,1};
-                    Dsum = Dsum + cUser.weighingFactor * H_HU * W_2 * H_HU';
+                    Dsum = Dsum + cUser.weighingFactor^2 * H_HU * W_2 * H_HU';
                 end
             end
             

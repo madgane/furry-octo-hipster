@@ -33,4 +33,17 @@ switch SimParams.weightedSumRateMethod
                 
 end
 
+if strcmp(SimParams.DebugMode,'true')
+    
+    displayArray = zeros(SimParams.nBases + 1,1);
+    
+    for iBase = 1:SimParams.nBases
+        displayArray(1,iBase) = trace(SimStructs.baseStruct{iBase,1}.P{1,1}' * SimStructs.baseStruct{iBase,1}.P{1,1});
+    end
+    
+    displayArray(iBase + 1,1) = SimParams.sPower;
+    display(displayArray');
+    
+end
+
 end

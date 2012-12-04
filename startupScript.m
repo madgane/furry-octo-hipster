@@ -1,37 +1,39 @@
 
 clc;clear;
 pathAddition;
+SimParams.DebugMode = 'false';
+
 SimParams.ExtRun = 'false';
-SimParams.allActive = 'true';
+SimParams.allActive = 'false';
 
 SimParams.ChannelModel = 'IID';
-SimParams.pathLossModel = 'CellEdge';
+SimParams.pathLossModel = 'Random_10';
 SimParams.DopplerType = 'Uniform_100';
 
 SimParams.weighingEqual = 'false';
 SimParams.SchedType = 'BDScheduling_SP';
-SimParams.PrecodingMethod = 'Best_WMMSE_Method';
-SimParams.weightedSumRateMethod = 'PerformScheduling';
+SimParams.PrecodingMethod = 'Best_ZF_Method';
+SimParams.weightedSumRateMethod = 'StreamScheduling';
 
-SimParams.nDrops = 10;
-SimParams.snrIndex = [-5:5:25];
+SimParams.nDrops = 50;
+SimParams.snrIndex = [15];
 
 SimParams.PF_dur = 40;
 SimParams.sampTime = 1e-3;
 SimParams.estError = 0.00;
 
 SimParams.nBands = 1;
-SimParams.nBases = 2;
-SimParams.nUsers = 10;
+SimParams.nBases = 1;
+SimParams.nUsers = 50;
 
 SimParams.nTxAntenna = 4;
 SimParams.nRxAntenna = 1;
 
 SimParams.gracePeriod = 0;
-SimParams.arrivalDist = 'Fixed';
+SimParams.arrivalDist = 'Constant';
 
-SimParams.maxArrival = 0.5;
-SimParams.FixedPacketArrivals = [10,10,10,10,10,10,5,5,5,5];
+SimParams.maxArrival = 5;
+SimParams.FixedPacketArrivals = [50,50,50,50,50,50,5,5,5,5];
 
 nSINRSamples = length(SimParams.snrIndex);
 nPacketSamples = length(SimParams.maxArrival);

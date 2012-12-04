@@ -54,7 +54,7 @@ if strcmp(perBSpowerConstraint,'true')
                     H_HU = linkChannel{iBase,iBand}(:,:,iUser)' * U{iUser,1};
                     Isum = Isum + cUser.weighingFactor * H_HU * W{iUser,1} * H_HU';
                     W_2 = W{iUser,1} * W{iUser,1};
-                    Dsum = Dsum + cUser.weighingFactor * H_HU * W_2 * H_HU';
+                    Dsum = Dsum + cUser.weighingFactor^2 * H_HU * W_2 * H_HU';
                 end
                 
                 mu_star = bisectionEstimateMU(Isum,Dsum,SimParams.sPower);

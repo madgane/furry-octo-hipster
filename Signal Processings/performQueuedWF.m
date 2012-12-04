@@ -17,19 +17,21 @@ switch pAllocationType
     case 'WSR_ZF'
         
         maximize sum(log(1 + cvxP ./ pwrUsers) .* Q)
+        
         subject to
             sum(cvxP) <= Pt;
 
     case 'DifferentialQueues'
         
-        minimize(sum(t))
+        variable t(nUsers,1)        
+        minimize(norm(t,2))
+        
         subject to
-            sum(Pwr) <= Pt;
+            sum(cvxP) <= Pt;
             max(Q - log(1 + cvxP ./ pwrUsers),0) <= t;
             
 end
-        
-    
+   
 cvx_end
 
 Pavg = cvxP;
