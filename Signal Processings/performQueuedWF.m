@@ -1,45 +1,41 @@
 
 function [Pmatrix Pavg] = performQueuedWF(PinvMatrix,Pt,Q)
 
-[Nt,Nu] = size(PinvMatrix);
-Pg = diag(PinvMatrix' * PinvMatrix);
-
- cvx_quiet('true');
-
-% cvx_begin
-%     
-%     variable Pwr(Nu,1)
-% 
-%     maximize sum(log(1 + Pwr./Pg).*Q)
-%     
-%     subject to
-%     
-% 
-%     sum(Pwr) <= Pt;
-%         
-% cvx_end
+cvx_quiet('true');
+pAllocationType = 'WSR_ZF';
 
 Q = Q / log2(exp(1));
+[~,nUsers] = size(PinvMatrix);
+pwrUsers = diag(PinvMatrix' * PinvMatrix);
 
 cvx_begin
-    
-    variable t(Nu,1)
-    variable Pwr(Nu,1)
 
-    minimize sum(t)
-    
-    subject to    
+variable cvxP(nUsers,1)
 
-    max(Q - log(1 + Pwr./Pg),0) <= t
-    sum(Pwr) <= Pt;
+switch pAllocationType
+    
+    case 'WSR_ZF'
         
+        maximize sum(log(1 + cvxP ./ pwrUsers) .* Q)
+        subject to
+            sum(cvxP) <= Pt;
+
+    case 'DifferentialQueues'
+        
+        minimize(sum(t))
+        subject to
+            sum(Pwr) <= Pt;
+            max(Q - log(1 + cvxP ./ pwrUsers),0) <= t;
+            
+end
+        
+    
 cvx_end
 
-
-Pavg = Pwr;
-
+Pavg = cvxP;
 Pmatrix = PinvMatrix;
-avgPWR = (1./sqrt(diag(Pmatrix' * Pmatrix)));
+avgPWR = 1./sqrt(pwrUsers);
+
 for iCol = 1:length(avgPWR)
     if (avgPWR(iCol,1) ~= Inf)
         Pmatrix(:,iCol) = Pmatrix(:,iCol) * avgPWR(iCol,1);
@@ -48,6 +44,6 @@ for iCol = 1:length(avgPWR)
     end
 end
 
-Pmatrix = Pmatrix * diag(sqrt(Pwr));
+Pmatrix = Pmatrix * diag(sqrt(Pavg));
 
 
