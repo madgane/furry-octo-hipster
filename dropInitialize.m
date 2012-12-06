@@ -11,15 +11,21 @@ for iBand = 1:SimParams.nBands
                 randn(SimParams.nRxAntenna,SimParams.nTxAntenna)) * sqrt(0.5 * SimParams.estError);
             
             PL = 10^(SimParams.PL_Profile(iBase,iUser) / 20);
+
+            if SimParams.iDrop ~= 1
+                SimStructs.chanHistory{iBase,iBand}(:,:,iUser) = SimStructs.actualChannel{iBase,iBand}(:,:,iUser);
+            else
+                SimStructs.chanHistory{iBase,iBand}(:,:,iUser) = zeros(SimParams.nRxAntenna,SimParams.nTxAntenna);
+            end
             
             switch (SimParams.ChannelModel)
                 
                 case 'AWGN'
                     
-                    SimStructs.actualChannel{iBase,iBand}(:,:,iUser) = complex(ones(SimParams.nRxAntenna,SimParams.nTxAntenna,SimParams.nUsers), ...
-                        zeros(SimParams.nRxAntenna,SimParams.nTxAntenna,SimParams.nUsers)) * PL;
+                    SimStructs.actualChannel{iBase,iBand}(:,:,iUser) = complex(ones(SimParams.nRxAntenna,SimParams.nTxAntenna), ...
+                        zeros(SimParams.nRxAntenna,SimParams.nTxAntenna)) * PL;
                     SimStructs.linkChan{iBase,iBand}(:,:,iUser) = SimStructs.actualChannel{iBase,iBand}(:,:,iUser) + estError;
-                    
+                                        
                 case 'IID'
                     
                     SimStructs.actualChannel{iBase,iBand}(:,:,iUser) = complex(randn(SimParams.nRxAntenna,SimParams.nTxAntenna), ...
@@ -72,10 +78,6 @@ weighingFactor = zeros(SimParams.nUsers,1);
 for iUser = 1:SimParams.nUsers
     weighingFactor(iUser,1) = SimStructs.userStruct{iUser,1}.trafficStats.backLogPkt;
     activeUsers(iUser,1) = sign(SimStructs.userStruct{iUser,1}.trafficStats.backLogPkt);
-end
-
-if strcmp(SimParams.allActive,'true')
-    activeUsers = ones(SimParams.nUsers,1);
 end
 
 for iUser = 1:SimParams.nUsers

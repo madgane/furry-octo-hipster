@@ -1,39 +1,39 @@
 
 clc;clear;
 pathAddition;
-SimParams.DebugMode = 'false';
 
-SimParams.ExtRun = 'false';
-SimParams.allActive = 'false';
+SimParams.DebugMode = 'true';
+SimParams.queueMode = 'false';
 
-SimParams.ChannelModel = 'IID';
-SimParams.pathLossModel = 'Random_10';
+SimParams.ChannelModel = 'Jakes';
+SimParams.pathLossModel = 'CellEdge';
 SimParams.DopplerType = 'Uniform_100';
 
 SimParams.weighingEqual = 'false';
 SimParams.SchedType = 'BDScheduling_SP';
-SimParams.PrecodingMethod = 'Best_ZF_Method';
+SimParams.PrecodingMethod = 'Best_WMMSE_Method';
 SimParams.weightedSumRateMethod = 'StreamScheduling';
 
-SimParams.nDrops = 50;
-SimParams.snrIndex = [15];
+SimParams.nDrops = 20;
+SimParams.snrIndex = [-5:5:20];
 
 SimParams.PF_dur = 40;
 SimParams.sampTime = 1e-3;
 SimParams.estError = 0.00;
+SimParams.fbFraction = 0.0;
 
 SimParams.nBands = 1;
-SimParams.nBases = 1;
-SimParams.nUsers = 50;
+SimParams.nBases = 2;
+SimParams.nUsers = 9;
 
 SimParams.nTxAntenna = 4;
 SimParams.nRxAntenna = 1;
 
 SimParams.gracePeriod = 0;
-SimParams.arrivalDist = 'Constant';
+SimParams.arrivalDist = 'Fixed';
 
 SimParams.maxArrival = 5;
-SimParams.FixedPacketArrivals = [50,50,50,50,50,50,5,5,5,5];
+SimParams.FixedPacketArrivals = [5,5,5,5,5,5,3,5,3];
 
 nSINRSamples = length(SimParams.snrIndex);
 nPacketSamples = length(SimParams.maxArrival);
@@ -82,6 +82,10 @@ for iPkt = 1:length(SimParams.maxArrival)
             queueBacklogsOverTime(iSNR,iUser,iPkt,:) = SimStructs.userStruct{iUser,1}.trafficStats.backlogsOverTime;
         end
 
+        if strcmp(SimParams.DebugMode,'true')
+            display(squeeze(queueBacklogs(iSNR,:,iPkt)));
+        end
+        
         cState = sprintf('SINR completed - %d',SimParams.snrIndex(iSNR));disp(cState);
     end
     
@@ -96,7 +100,7 @@ throughputSumS = squeeze(SimParams.Thrpt(:,:,testPktIndex));
 queueBackLogsS = squeeze(queueBacklogs(testSINRIndex,:,:));
 queueBacklogsOverTimeS = squeeze(queueBacklogsOverTime(testSINRIndex,:,testPktIndex,:));
 
-if strcmp(SimParams.allActive,'true')
+if strcmp(SimParams.queueMode,'false')
     
     markerS = 'o-';
     figure(1);hold all;

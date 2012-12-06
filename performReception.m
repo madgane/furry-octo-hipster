@@ -3,6 +3,15 @@ function [SimParams,SimStructs] = performReception(SimParams,SimStructs)
 singleNode = 1;
 for iBand = 1:SimParams.nBands
     
+    if strcmp(SimParams.DebugMode,'true')
+        activeUsersDebug = cell(SimParams.nBases,1);
+        for dBase = 1:SimParams.nBases
+            activeUsersDebug{dBase,1} = sort(SimStructs.baseStruct{dBase,1}.assignedUsers{iBand,1})';
+        end
+        
+        celldisp(activeUsersDebug);
+    end
+    
     linkChannel = SimStructs.actualChannel;
     
     for iUser = 1:SimParams.nUsers

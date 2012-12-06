@@ -28,5 +28,6 @@ SimParams.profiler.schX = zeros(SimParams.nBases,1);
 
 SimStructs.linkChan = cell(SimParams.nBases,SimParams.nBands);
 SimStructs.actualChannel = cell(SimParams.nBases,SimParams.nBands);
+SimStructs.chanHistory = cell(SimParams.nBases,SimParams.nBands);
 
 end

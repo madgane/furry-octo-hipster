@@ -110,9 +110,11 @@ if strcmp(SimParams.ChannelModel,'Jakes')
     end
 end
 
-nFeedbackOverCycle = 1e6;
 SimParams.updateFeedback = zeros(SimParams.nUsers,1);
 
 for iUser = 1:SimParams.nUsers
-    SimParams.updateFeedback(iUser,1) = round((1 / SimParams.userDoppler(iUser,1)) / nFeedbackOverCycle / SimParams.sampTime) + 1;
+    feedbackCycle = (1 / SimParams.userDoppler(iUser,1)) * SimParams.fbFraction;
+    SimParams.updateFeedback(iUser,1) = round(feedbackCycle / SimParams.sampTime) + 1;
+end
+
 end
