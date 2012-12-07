@@ -26,7 +26,7 @@ switch SimParams.weightedSumRateMethod
     case 'StreamScheduling'
         
         [SimParams,SimStructs] = getStrWeightedMMSEDesign(SimParams,SimStructs);
-                
+        
     otherwise
         
         display('Unknown Weighted Sum Rate Option !');

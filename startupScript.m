@@ -2,20 +2,20 @@
 clc;clear;
 pathAddition;
 
-SimParams.DebugMode = 'true';
+SimParams.DebugMode = 'false';
 SimParams.queueMode = 'false';
 
-SimParams.ChannelModel = 'Jakes';
+SimParams.ChannelModel = 'IID';
 SimParams.pathLossModel = 'CellEdge';
-SimParams.DopplerType = 'Uniform_100';
+SimParams.DopplerType = 'Constant_100';
 
-SimParams.weighingEqual = 'false';
-SimParams.SchedType = 'BDScheduling_SP';
+SimParams.weighingEqual = 'true';
+SimParams.SchedType = 'XScheduling';
 SimParams.PrecodingMethod = 'Best_WMMSE_Method';
-SimParams.weightedSumRateMethod = 'StreamScheduling';
+SimParams.weightedSumRateMethod = 'DistScheduling';
 
-SimParams.nDrops = 20;
-SimParams.snrIndex = [-5:5:20];
+SimParams.nDrops = 10;
+SimParams.snrIndex = [-5:5:15];
 
 SimParams.PF_dur = 40;
 SimParams.sampTime = 1e-3;
@@ -24,16 +24,17 @@ SimParams.fbFraction = 0.0;
 
 SimParams.nBands = 1;
 SimParams.nBases = 2;
-SimParams.nUsers = 9;
+SimParams.nUsers = 8;
 
-SimParams.nTxAntenna = 4;
+SimParams.nTxAntenna = 8;
 SimParams.nRxAntenna = 1;
 
 SimParams.gracePeriod = 0;
-SimParams.arrivalDist = 'Fixed';
+SimParams.arrivalDist = 'Constant';
 
-SimParams.maxArrival = 5;
-SimParams.FixedPacketArrivals = [5,5,5,5,5,5,3,5,3];
+SimParams.maxArrival = 50;
+SimParams.FixedPacketArrivals = [10,10,10,10,10,10,1,1,1,1];
+SimParams.PL_Profile = [5 -inf 5 -inf 5 -inf 1e-20 0; -inf 5 -inf 5 -inf 5 0 1e-20];
 
 nSINRSamples = length(SimParams.snrIndex);
 nPacketSamples = length(SimParams.maxArrival);
@@ -41,7 +42,7 @@ SimStructs.userStruct = cell(SimParams.nUsers,1);
 SimStructs.baseStruct = cell(SimParams.nBases,1);
 
 SimParams.maxRank = min(SimParams.nRxAntenna,SimParams.nTxAntenna);
-SimParams.muxRank = min(SimParams.nTxAntenna,(SimParams.nRxAntenna * SimParams.nUsers / SimParams.nBases));
+SimParams.muxRank = min(SimParams.nTxAntenna,(SimParams.nRxAntenna * SimParams.nUsers));
 
 SimParams.Thrpt = zeros(nSINRSamples,SimParams.nUsers,nPacketSamples);
 utilityScale = SimParams.nDrops * SimParams.muxRank * SimParams.nBands;
@@ -91,9 +92,7 @@ for iPkt = 1:length(SimParams.maxArrival)
     
 end
 
-testPktIndex = 1;testSINRIndex = 1;
-SimParams.profiler.schX = SimParams.profiler.schX / (iSNR * iDrop);
-   
+testPktIndex = 1;testSINRIndex = 1;   
 fairnessS = squeeze(SimParams.fairness(:,:,testPktIndex));
 throughputSumS = squeeze(SimParams.Thrpt(:,:,testPktIndex));
 

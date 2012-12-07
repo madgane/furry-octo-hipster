@@ -1,10 +1,5 @@
 function [SimParams,SimStructs] = getScheduledUsers(SimParams,SimStructs)
 
-baseTime = zeros(SimParams.nBases,1);
-for iBase = SimParams.nBases
-    baseTime(iBase,1) = cputime;
-end
-
 chScheduler = char(SimParams.SchedType);
 uScoreIndex = find(chScheduler == '_');
 if isempty(uScoreIndex)
@@ -50,9 +45,5 @@ switch scheduleMethod
         
     otherwise
         display('Unknown Scheduling Type');
-end
-
-for iBase = SimParams.nBases
-    SimParams.profiler.schX(iBase,1) = (cputime - baseTime(iBase,1)) + SimParams.profiler.schX(iBase,1);
 end
 

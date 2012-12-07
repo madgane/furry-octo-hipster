@@ -3,9 +3,7 @@ function [SimParams,SimStructs] = fwkInitialization(SimParams,SimStructs)
 
 stream = RandStream.getGlobalStream;reset(stream);
 
-for iUser = 1:SimParams.nUsers
-    SimStructs.userStruct{iUser,1}.trafficStats.pktService = zeros(length(SimParams.maxArrival),SimParams.nDrops);
-end
+% Path Loss Model related code
 
 plModel = char(SimParams.pathLossModel);
 uscore_index = find(plModel == '_');
@@ -41,6 +39,10 @@ switch pathLossModel
         plGain = str2double(plModel(uscore_index(1,1) + 1:end));
         SimParams.PL_Profile = -rand(SimParams.nBases,SimParams.nUsers) * plGain;
         
+    case 'Fixed'
+        
+        SimParams.PL_Profile = SimParams.PL_Profile;
+        
     otherwise
         
         xdB = char(SimParams.pathLossModel);xI = strfind(xdB,'_');
@@ -50,6 +52,12 @@ switch pathLossModel
             SimParams.PL_Profile(:,iUser) = str2double(xdB(xI+1:end));
             SimParams.PL_Profile(modNode,iUser) = 0;
         end
+end
+
+% Queue Related code
+
+for iUser = 1:SimParams.nUsers
+    SimStructs.userStruct{iUser,1}.trafficStats.pktService = zeros(length(SimParams.maxArrival),SimParams.nDrops);
 end
 
 switch SimParams.arrivalDist    
@@ -71,6 +79,11 @@ else
 end
 
 SimParams.avgPktValues = randArrival(1,randIndices);
+[SimParams,SimStructs] = generateUserTrafficArrivals(SimParams,SimStructs);
+
+% Doppler / Small scale related code
+
+legacychannelsim(true);
 
 dopplerType = char(SimParams.DopplerType);
 uscore_index = find(dopplerType == '_');

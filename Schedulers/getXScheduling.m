@@ -254,7 +254,7 @@ for iBand = 1:SimParams.nBands
                 
                 for iBase = 1:SimParams.nBases
                     Hk = SimStructs.linkChan{iBase,iBand}(:,:,iUser);
-                    M = U' * Hk;M = M(1:SimParams.maxRank,:);
+                    M = U' * Hk;M = M(1:SimParams.maxRank,:) * sign(SimStructs.userStruct{iUser,1}.weighingFactor);
                     completeH{iUser,iBase} = [completeH{iUser,iBase} M.'];
                 end
                 
@@ -287,7 +287,9 @@ for iBand = 1:SimParams.nBands
                         if kBase ~= iBase
                             for iUser = 1:length(activeUsers{iBase,1})
                                 cUser = activeUsers{iBase,1}(1,iUser);cStream = activeStreams{iBase,1}(1,iUser);
-                                Nspace{kBase,1} = [Nspace{kBase,1} completeH{cUser,kBase}(:,cStream)];
+                                if SimParams.N < norm(completeH{cUser,kBase}(:,cStream),2)
+                                    Nspace{kBase,1} = [Nspace{kBase,1} completeH{cUser,kBase}(:,cStream)];
+                                end
                             end
                         end
                     end                    
@@ -297,8 +299,7 @@ for iBand = 1:SimParams.nBands
             for iBase = 1:SimParams.nBases
                 SimStructs.baseStruct{iBase}.assignedUsers{iBand,1} = activeUsers{iBase,1}';
                 SimStructs.baseStruct{iBase}.assignedStreams{iBand,1} = activeStreams{iBase,1}';
-            end
-            
+            end            
     end
     
 end

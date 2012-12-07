@@ -23,6 +23,7 @@ while continueAgain
 
     muK = (muMax +  muMin) * 0.5;
     Pwr = real(diag(phiX)) ./ (real(diag(L)) + muK).^2;
+    Pwr = (Pwr >= 0) .* Pwr;
     
     if sum(Pwr) < pTotal
         muMax = muK;
@@ -37,9 +38,12 @@ while continueAgain
     
     if iIter > maxIter
         continueAgain = 0;
-        display('MaxIterationExceeded !');
     end
     
+end
+
+if sum(Pwr < 0)
+    display('Warning ! Negative Powers !');
 end
 
 mu_star = muK;

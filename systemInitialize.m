@@ -23,11 +23,18 @@ for iBase = 1:SimParams.nBases
     SimStructs.baseStruct{iBase,1}.P = cell(SimParams.nBands,1);
 end
 
-SimParams.profiler.schX = zeros(SimParams.nBases,1);
-[SimParams,SimStructs] = generateUserTrafficArrivals(SimParams,SimStructs);
-
 SimStructs.linkChan = cell(SimParams.nBases,SimParams.nBands);
 SimStructs.actualChannel = cell(SimParams.nBases,SimParams.nBands);
 SimStructs.chanHistory = cell(SimParams.nBases,SimParams.nBands);
+
+if strcmp(SimParams.ChannelModel,'Jakes')
+    for iUser = 1:SimParams.nUsers
+        for iBase = 1:SimParams.nBases
+            for iBand = 1:SimParams.nBands
+                reset(SimStructs.JakesChStruct{iUser,iBase,iBand},rand);
+            end
+        end
+    end
+end
 
 end
