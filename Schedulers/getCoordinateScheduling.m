@@ -19,7 +19,11 @@ for iBand = 1:SimParams.nBands
         for iBase = 1:SimParams.nBases
             H = SimStructs.linkChan{iBase,iBand}(:,:,iUser);
             [U,~,~] = svd(H);M = U' * H;
-            M = M.' * sign(SimStructs.userStruct{iUser,1}.weighingFactor);
+            if SimParams.queueWt
+                M = M.' * (SimStructs.userStruct{iUser,1}.weighingFactor);
+            else
+                M = M.' * sign(SimStructs.userStruct{iUser,1}.weighingFactor);
+            end
             Haug = [Haug M];
             
             for iStream = 1:SimParams.maxRank

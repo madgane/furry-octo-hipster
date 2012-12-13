@@ -18,7 +18,11 @@ for iBase = 1:SimParams.nBases
         end
 
         eP = pinv(augH);
-        [SimStructs.baseStruct{iBase}.P{iBand,1}] = performQueuedWF(eP,SimParams.sPower,Q);
+        if SimParams.queueWt == 2
+            [SimStructs.baseStruct{iBase}.P{iBand,1}] = performQueuedWF(eP,SimParams.sPower,Q);
+        else
+            [SimStructs.baseStruct{iBase}.P{iBand,1}] = performWFAlgorithm(eP,SimParams.sPower);
+        end
         
     end
     

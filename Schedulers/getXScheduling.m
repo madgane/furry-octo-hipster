@@ -1,20 +1,35 @@
 function [SimParams,SimStructs] = getXScheduling(SimParams,SimStructs)
 
-schLogic = 'StreamSearch';
+chScheduler = char(SimParams.SchedType);
+uScoreIndex = find(chScheduler == '_');
+if isempty(uScoreIndex)
+    scheduleMethod = SimParams.SchedType;
+else
+    scheduleMethod = chScheduler(uScoreIndex(1,1) + 1:end);
+end
 
 for iBand = 1:SimParams.nBands
     
-    switch schLogic
+    switch scheduleMethod
         
         case 'EqualShare'
             
             for iBase = 1:SimParams.nBases
                 
                 cUsers = SimStructs.baseStruct{iBase,1}.linkedUsers;
-                eH = SimStructs.linkChan{iBase,iBand}(:,:,cUsers);
+                eH = zeros(length(cUsers),SimParams.nTxAntenna);
+                if SimParams.queueWt
+                    for iUser = 1:length(cUsers)
+                        eH(iUser,:) = SimStructs.linkChan{iBase,iBand}(:,:,cUsers(iUser,1)) * (SimStructs.userStruct{cUsers(iUser,1),1}.weighingFactor);
+                    end
+                else
+                    for iUser = 1:length(cUsers)
+                        eH(iUser,:) = SimStructs.linkChan{iBase,iBand}(:,:,cUsers(iUser,1)) * sign(SimStructs.userStruct{cUsers(iUser,1),1}.weighingFactor);
+                    end
+                end
                 augE = reshape(eH(:),SimParams.nTxAntenna,length(cUsers));
                 
-                [~,~,sortA] = qr(augE,'vector');
+                [~,~,sortA] = qr(augE,0);
                 muxIFFreeRank = SimParams.muxRank / SimParams.nBases;
                 schedUsers = cUsers(sortA(1,1:muxIFFreeRank),1);
                 SimStructs.baseStruct{iBase}.assignedUsers{iBand,1} = schedUsers;
@@ -254,7 +269,11 @@ for iBand = 1:SimParams.nBands
                 
                 for iBase = 1:SimParams.nBases
                     Hk = SimStructs.linkChan{iBase,iBand}(:,:,iUser);
-                    M = U' * Hk;M = M(1:SimParams.maxRank,:) * sign(SimStructs.userStruct{iUser,1}.weighingFactor);
+                    if SimParams.queueWt
+                        M = U' * Hk;M = M(1:SimParams.maxRank,:) * (SimStructs.userStruct{iUser,1}.weighingFactor);
+                    else
+                        M = U' * Hk;M = M(1:SimParams.maxRank,:) * sign(SimStructs.userStruct{iUser,1}.weighingFactor);
+                    end
                     completeH{iUser,iBase} = [completeH{iUser,iBase} M.'];
                 end
                 

@@ -6,6 +6,8 @@ maxIter = 1e4;
 epsilonCheck = min(1e-4,(SimParams.sPower)^(-2));
 nStreams = min(SimParams.maxRank,SimParams.nRxAntenna);
 
+SumCapacity = cell(SimParams.nBands,1);
+
 for iBand = 1:SimParams.nBands
     
     continueAgain = 1;
@@ -115,6 +117,7 @@ for iBand = 1:SimParams.nBands
         
         W_prev = W;
         iIter = iIter + 1;
+        SumCapacity{iBand,1} = [SumCapacity{iBand,1} ; performMockReception(SimParams,SimStructs,V,iBand)];
         
     end
     

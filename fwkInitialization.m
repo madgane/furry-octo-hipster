@@ -62,20 +62,17 @@ end
 
 switch SimParams.arrivalDist    
     case 'Random'        
-        pktRatio = 2;
-        pktStep = SimParams.maxArrival(1,SimParams.iPkt) / pktRatio;
-        randArrival = pktStep:pktStep:pktStep * pktRatio * pktRatio;
+        nRandomness = 100;
+        randArrival = rand(1,nRandomness) * SimParams.maxArrival(1,SimParams.iPkt);
     case 'Constant'        
         randArrival = SimParams.maxArrival(1,SimParams.iPkt);        
 end
 
 if ~strcmp(SimParams.arrivalDist,'Fixed')
-    maxMult = 10;xLength = length(randArrival);
-    randIndices = randperm(SimParams.nUsers * maxMult,SimParams.nUsers);
-    randIndices = mod(randIndices(1,1:SimParams.nUsers) - 1,xLength) + 1;
+    randIndices = randi([1,length(randArrival)],1,SimParams.nUsers);
 else
     randIndices = 1:SimParams.nUsers;
-    randArrival = SimParams.FixedPacketArrivals;    
+    randArrival = SimParams.FixedPacketArrivals;
 end
 
 SimParams.avgPktValues = randArrival(1,randIndices);

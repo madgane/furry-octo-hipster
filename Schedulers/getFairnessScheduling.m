@@ -46,7 +46,11 @@ for iBand = 1:SimParams.nBands
                         fairnessMetric(iIndex,1) = (currentRate * avgArrivalRate * currentWeight) / avgServiceRate;
                 end
                 
-                X(:,iIndex) = (U(:,iRank)' * linkChannel(:,:,iUser)).' * sign(currentWeight);
+                if SimParams.queueWt
+                    X(:,iIndex) = (U(:,iRank)' * linkChannel(:,:,iUser)).' * (currentWeight);
+                else
+                    X(:,iIndex) = (U(:,iRank)' * linkChannel(:,:,iUser)).' * sign(currentWeight);
+                end
                 
             end
             

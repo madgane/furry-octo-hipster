@@ -6,7 +6,6 @@ maxIter = 1e4;
 epsilonCheck = min(1e-4,(SimParams.sPower)^(-2));
 nStreams = min(SimParams.maxRank,SimParams.nRxAntenna);
 
-iterationPlot = 0;
 SumCapacity = cell(SimParams.nBands,1);
 
 for iBand = 1:SimParams.nBands
@@ -126,7 +125,3 @@ for iBand = 1:SimParams.nBands
     
 end
 
-if iterationPlot
-    figure(10);hold all;
-    plot(SumCapacity{1,1});
-end
