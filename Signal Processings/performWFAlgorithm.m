@@ -1,6 +1,9 @@
 
 function [Pmatrix Pavg] = performWFAlgorithm(PinvMatrix,Pt,Gains)
 
+iIteration = 0;
+maxIteration = 1e5;
+
 if nargin == 2
     Ppow = diag(PinvMatrix' * PinvMatrix);
 else
@@ -21,7 +24,7 @@ while (1)
     Pavg = mean(Pbound) - Ppow;
     Pavg = Pavg .* (Pavg > 0);
     Psum = sum(Pavg);
-    
+        
     if Psum >= Pt
         Pbound(1,1) = mean(Pbound);
     else
@@ -31,6 +34,12 @@ while (1)
     if abs(Psum - Pt) < 1e-5
         break;
     end  
+    
+    if iIteration > maxIteration
+        break;
+    else
+        iIteration = iIteration + 1;
+    end    
     
 end
 
