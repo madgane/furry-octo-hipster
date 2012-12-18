@@ -6,13 +6,14 @@ SimParams.DebugMode = 'false';
 SimParams.queueMode = 'false';
 
 SimParams.ChannelModel = 'IID';
-SimParams.pathLossModel = 'CellEdge';
+SimParams.pathLossModel = 'Random_20';
 SimParams.DopplerType = 'Constant_100';
 
+SimParams.queueWt = 0;
 SimParams.weighingEqual = 'true';
-SimParams.SchedType = 'XScheduling';
-SimParams.PrecodingMethod = 'Best_WMMSE_Method';
-SimParams.weightedSumRateMethod = 'DistScheduling';
+SimParams.SchedType = 'XScheduling_InstaSS';
+SimParams.PrecodingMethod = 'Best_CZF_Method';
+SimParams.weightedSumRateMethod = 'StreamScheduling';
 
 SimParams.nDrops = 10;
 SimParams.snrIndex = [-5:5:15];
@@ -24,15 +25,15 @@ SimParams.fbFraction = 0.0;
 
 SimParams.nBands = 1;
 SimParams.nBases = 2;
-SimParams.nUsers = 8;
+SimParams.nUsers = 20;
 
-SimParams.nTxAntenna = 8;
+SimParams.nTxAntenna = 4;
 SimParams.nRxAntenna = 1;
 
 SimParams.gracePeriod = 0;
 SimParams.arrivalDist = 'Constant';
 
-SimParams.maxArrival = 50;
+SimParams.maxArrival = [100];
 SimParams.FixedPacketArrivals = [10,10,10,10,10,10,1,1,1,1];
 SimParams.PL_Profile = [5 -inf 5 -inf 5 -inf 1e-20 0; -inf 5 -inf 5 -inf 5 0 1e-20];
 
@@ -50,6 +51,7 @@ SimParams.fairness = zeros(nSINRSamples,SimParams.nUsers,nPacketSamples);
 
 queueBacklogs = zeros(nSINRSamples,SimParams.nUsers,nPacketSamples);
 queueBacklogsOverTime = zeros(nSINRSamples,SimParams.nUsers,nPacketSamples,SimParams.nDrops);
+SimParams.txPower = zeros(length(SimParams.maxArrival),length(SimParams.snrIndex),SimParams.nBases);
 
 for iPkt = 1:length(SimParams.maxArrival)
     
@@ -92,30 +94,28 @@ for iPkt = 1:length(SimParams.maxArrival)
     
 end
 
-testPktIndex = 1;testSINRIndex = 1;   
-fairnessS = squeeze(SimParams.fairness(:,:,testPktIndex));
-throughputSumS = squeeze(SimParams.Thrpt(:,:,testPktIndex));
-
-queueBackLogsS = squeeze(queueBacklogs(testSINRIndex,:,:));
-queueBacklogsOverTimeS = squeeze(queueBacklogsOverTime(testSINRIndex,:,testPktIndex,:));
+SimResults.avgTxPower = SimParams.txPower / SimParams.nDrops;
 
 if strcmp(SimParams.queueMode,'false')
     
+    SimResults.sumThrpt = sum(SimParams.Thrpt(:,:,end),2);
+    SimResults.thrptFairness = sum(SimParams.fairness(:,:,end),2);
+    
     markerS = 'o-';
     figure(1);hold all;
-    SimParams.sumThrpt = sum(throughputSumS,2);
+    SimParams.sumThrpt = SimResults.sumThrpt;
     plot(SimParams.snrIndex,SimParams.sumThrpt,markerS);
     xlabel('SNR in dB');ylabel('Sum Capacity in Bits/Sec/Hz');grid on;
 
 %     figure(2);hold all;
-%     JainMean = mean(throughputSumS,2).^2;JainVar = var(throughputSumS,0,2);
+%     JainMean = mean(SimResults.sumThrpt,2).^2;JainVar = var(SimResults.sumThrpt,0,2);
 %     JainIndex_capacity = JainMean ./ (JainMean + JainVar);
 %     
 %     plot(SimParams.snrIndex,JainIndex_capacity,markerS);
 %     xlabel('SNR in dB');ylabel('Capacity Deviation across Users in Bits/Sec/Hz');grid on;
     
 %     figure(3);hold all;
-%     JainMean = mean(fairnessS,2).^2;JainVar = var(fairnessS,0,2);
+%     JainMean = mean(SimResults.thrptFairness,2).^2;JainVar = var(SimResults.thrptFairness,0,2);
 %     JainIndex_utility = JainMean ./ (JainMean + JainVar);
 %     
 %     plot(SimParams.snrIndex,JainIndex_utility,markerS);
@@ -123,9 +123,17 @@ if strcmp(SimParams.queueMode,'false')
 
 else
     
-    markerS = '.-';
-    figure(5);hold all;
-    plot(1:SimParams.nDrops,sum(queueBacklogsOverTimeS,1));
-    xlabel('Slot Index');ylabel('Queue Backlogs (pkts) over Time');grid on;
+    SimResults.queueBackLogs = queueBacklogs;
+    SimResults.queueBackLogsOverTime = queueBacklogsOverTime;
+    
+%     markerS = '.-';
+%     figure(5);hold all;
+%     plot(1:SimParams.nDrops,sum(squeeze(SimResults.queueBackLogsOverTime(end,:,end,:)),1));
+%     xlabel('Slot Index');ylabel('Queue Backlogs (pkts) over Time');grid on;
+    
+    markerS = '.*-';
+    plot(SimParams.maxArrival,sum(squeeze(SimResults.queueBackLogs(end,:,:)),1));
+    xlabel('Average Arrival Rate');ylabel('Average Queue Size (pkts)');grid on;
+    hold all;
     
 end

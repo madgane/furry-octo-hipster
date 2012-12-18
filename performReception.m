@@ -50,15 +50,14 @@ for iBand = 1:SimParams.nBands
                 cBase = SimStructs.baseStruct{baseIndex,1};
                 
                 gP = cBase.P{iBand,1};
-                pIndices = find(iUser == cBase.assignedUsers{iBand,1});
-                
+                pIndices = iUser == cBase.assignedUsers{iBand,1};
                 P = gP(:,pIndices);
                 H = linkChannel{baseIndex,iBand}(:,:,iUser);
                 S = H * P + S;
                 
                 % Intra Stream Calculation
                 
-                pIndices = find(iUser ~= cBase.assignedUsers{iBand,1});
+                pIndices = iUser ~= cBase.assignedUsers{iBand,1};
                 P = gP(:,pIndices);
 
                 if ~isempty(P)
@@ -72,15 +71,21 @@ for iBand = 1:SimParams.nBands
                 
             end
             
-            % Inter Stream Calculation
+            if SimParams.nBases > 1
+                if isempty(neighNode)
+                    display('No Neighbors');
+                end
+            end
             
+            % Inter Stream Calculation
+           
             for iBase = 1:length(neighNode)
                 
                 baseIndex = neighNode(1,iBase);
                 cBase = SimStructs.baseStruct{baseIndex,1};
                 
                 gP = cBase.P{iBand,1};
-                pIndices = find(iUser ~= cBase.assignedUsers{iBand,1});
+                pIndices = iUser ~= cBase.assignedUsers{iBand,1};
                 P = gP(:,pIndices);
                 
                 H = linkChannel{baseIndex,iBand}(:,:,iUser);
@@ -114,6 +119,12 @@ for iBand = 1:SimParams.nBands
         
     end
     
+end
+
+for iBand = 1:SimParams.nBands
+    for iBase = 1:SimParams.nBases
+        SimParams.txPower(SimParams.iPkt,SimParams.iSNR,iBase) = SimParams.txPower(SimParams.iPkt,SimParams.iSNR,iBase) + trace(SimStructs.baseStruct{iBase,1}.P{iBand,1}' * SimStructs.baseStruct{iBase,1}.P{iBand,1});
+    end
 end
 
 % aH = SimStructs.linkChan;

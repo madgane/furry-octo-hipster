@@ -7,6 +7,11 @@ Q = Q / log2(exp(1));
 [~,nUsers] = size(PinvMatrix);
 pwrUsers = diag(PinvMatrix' * PinvMatrix);
 
+if sum(Q) == 0
+    Pmatrix = zeros(size(PinvMatrix));
+    return;
+end
+
 switch pAllocationType
     
     case 'WSR_ZF'
@@ -19,7 +24,7 @@ switch pAllocationType
             Pavg = mean(Pbound) * Q - pwrUsers;
             Pavg = Pavg .* (Pavg > 0);
             Psum = sum(Pavg);
-            
+                        
             if Psum >= Pt
                 Pbound(1,1) = mean(Pbound);
             else
